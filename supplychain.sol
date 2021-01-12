@@ -34,7 +34,7 @@ contract supplychain {
         for(uint256 i = 0; i < certHashes.length; i++){ 
             if ((keccak256(abi.encodePacked((certHashes[i]))) == keccak256(abi.encodePacked(((IPFS_Hash)))))){ 
             // keccak256(abi.encodePacked converts the cert hash to byte before comparing it             
-              return 1;
+              return 1; // return 1 if successful
             }
          }      
         return 0;

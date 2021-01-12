@@ -37,7 +37,7 @@ contract supplychain {
               return 1; // return 1 if successful
             }
          }      
-        return 0;
+        return 0; // retrun 0 if unsuccessful
         }
     
     

@@ -7,11 +7,13 @@ contract certificate {
     string[] validators; //address of validators
     address admin;
     struct pRID_Val {
-        string validator;
+        string validator; //address of validator
         string productID;
         string productDescription;
         string IPFS_Hash;
         string Origin;
+        string cert_IPFS_Hash;
+        uint8 cert_Status; // 1 for approved 0 for denied.
         
     }
     
@@ -22,9 +24,10 @@ contract certificate {
            admin = msg.sender;
        }
        //event to alert validator using his address(val) 
-       event Validator_Alert(string productID, string productDescription, string IPFS_Hash, string Origin, string val);
+       event Validator_Alert(string productID, string productDescription, string IPFS_Hash, string Origin, string val, string farmerSig);
+       event farmerAlert (string productID, string cert_Status);
        
-    function applyForCert (string memory productID, string memory productDescription, string memory IPFS_Hash, string memory Origin) public returns(bool){
+    function applyForCert (string memory productID, string memory productDescription, string memory IPFS_Hash, string memory Origin, string memory farmerSig) public returns(bool){
       require (bytes(checkValidator[productID].validator).length == 0 ," ProductID already exist "); //check if productid exist by checking if it has an address
        // storing product details in contract
        checkValidator[productID].productDescription = productDescription;
@@ -33,14 +36,19 @@ contract certificate {
        checkValidator[productID].Origin = Origin; 
        string memory selectedValidator = randomlySelectedValidator();
        checkValidator[productID].validator = selectedValidator; 
-       emit Validator_Alert(productID, productDescription, IPFS_Hash, Origin, selectedValidator); //aert validator
+       emit Validator_Alert(productID, productDescription, IPFS_Hash, Origin, selectedValidator, farmerSig); //aert validator //validator will extract farmer public key from signature
        return true;
     }
-   function validate() internal returns(bool){
+   function validate(string memory productID, string memory cert_IPFS_Hash, uint8 cert_Status) public returns(bool){
+       checkValidator[productID].cert_IPFS_Hash = cert_IPFS_Hash; // storing cert_IPFS_Hashs in mapping
+       checkValidator[productID].cert_Status = cert_Status; //storing cert_Status in mapping
+       if (cert_Status == 1) {
+            emit farmerAlert (productID, "Approved Product");
+       }else{
+           emit farmerAlert ( productID,"Prodcut Denied");
+       }
       
-       
-      
-       
+       return true;
    }
     function randomlySelectedValidator() internal view returns(string memory){
         uint8 validatorLoc = 1;
@@ -54,7 +62,7 @@ contract certificate {
         validators.push(validator);
         return 1; 
     }
-    //function to delete validator from lit of validators
+    //function to delete validator from list of validators
     function delValidator(string memory validator) public  returns(uint8){
         require (msg.sender == admin);
         removeByValue(validator);
@@ -78,8 +86,11 @@ contract certificate {
             validators[i] = validators[i+1];
             i++;
         }
-        //validators.length--; 
+        //validators.length--; //pending on how to solve this 
     }
     
+    function showValidators () public view returns(string[] memory){
+        return validators;
+    }
     }
     

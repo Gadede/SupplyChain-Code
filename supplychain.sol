@@ -45,7 +45,7 @@ contract supplychain {
     
     mapping(string => wholeseller_RetailerMap) internal wholeseller_Retailer_Relationship; //mapping for wholesellers and retailers
     
-    mapping(string => farmerInput) public f_input; //mapping to hold farmer input
+    mapping(string => farmerInput) internal f_input; //mapping to hold farmer input
     
     mapping(string => productIDnPrRel) internal prodIDnPriceMap;
     

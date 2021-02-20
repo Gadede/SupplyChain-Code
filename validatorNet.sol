@@ -14,26 +14,28 @@ contract certificate {
         string Origin;
         string cert_IPFS_Hash;
         uint8 cert_Status; // 1 for approved 0 for denied.
+        address public_blockchainAddress;
         
     }
     
        mapping(string => pRID_Val) public checkValidator;
        constructor (){
-           validators.push("0xe4Abb16Fab2cc9533D7eDA4ff875b14E980B38a4");
-           validators.push("0xFE5A0a68F83fae45ff69a2Db003BB2Cba97470fc");
+           validators.push("0x2f7A8f674860d4Efe5c825E2bB57414c1C7B50aD");
+           validators.push("0x9F71Ac7e084EFf09c3cc8B316Bc152A86f3283Be");
            admin = msg.sender;
        }
        //event to alert validator using his address(val) 
        event Validator_Alert(string productID, string productDescription, string IPFS_Hash, string Origin, string val, string farmerSig);
        event farmerAlert (string productID, string cert_Status);
        
-    function applyForCert (string memory productID, string memory productDescription, string memory IPFS_Hash, string memory Origin, string memory farmerSig) public returns(bool){
+    function applyForCert (string memory productID, string memory productDescription, string memory IPFS_Hash, string memory Origin, string memory farmerSig, address public_blockchainAddress) public returns(bool){
       require (bytes(checkValidator[productID].validator).length == 0 ," ProductID already exist "); //check if productid exist by checking if it has an address
        // storing product details in contract
        checkValidator[productID].productDescription = productDescription;
        checkValidator[productID].productID = productID;
        checkValidator[productID].IPFS_Hash = IPFS_Hash;
        checkValidator[productID].Origin = Origin; 
+       checkValidator[productID].public_blockchainAddress = public_blockchainAddress;
        string memory selectedValidator = randomlySelectedValidator();
        checkValidator[productID].validator = selectedValidator; 
        emit Validator_Alert(productID, productDescription, IPFS_Hash, Origin, selectedValidator, farmerSig); //aert validator //validator will extract farmer public key from signature
@@ -82,11 +84,8 @@ contract certificate {
     }
 
     function removeByIndex(uint i) internal {
-        while (i<validators.length-1) {
-            validators[i] = validators[i+1];
-            i++;
-        }
-        //validators.length--; //pending on how to solve this 
+        validators[i] = validators[validators.length -1];
+        validators.pop();
     }
     
     function showValidators () public view returns(string[] memory){
